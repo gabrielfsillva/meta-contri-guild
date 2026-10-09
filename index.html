@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Metas - Guilda</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-purple: #8b5cf6;
+      --accent-gold: #f59e0b;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --border-color: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      padding: 30px 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header-title h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a855f7, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+
+    .dropzone {
+      border: 2px dashed var(--accent-purple);
+      background-color: rgba(139, 92, 246, 0.05);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 25px;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      background-color: rgba(139, 92, 246, 0.15);
+      border-color: #a855f7;
+    }
+
+    .dropzone i { font-size: 2.2rem; color: var(--accent-purple); margin-bottom: 8px; }
+    #fileInput { display: none; }
+
+    .config-bar {
+      background: var(--bg-card);
+      padding: 16px 24px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin-bottom: 25px;
+      border: 1px solid var(--border-color);
+    }
+
+    .input-group { display: flex; align-items: center; gap: 10px; }
+    .input-group label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+    .input-group input, .input-group select {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 6px;
+      outline: none;
+      font-size: 0.9rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .metric-info h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+    .metric-info p { font-size: 1.6rem; font-weight: 700; margin-top: 5px; }
+
+    .podium-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .podium-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 15px 20px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .podium-card.first { border-color: var(--accent-gold); background: rgba(245, 158, 11, 0.05); }
+
+    .table-container {
+      background: var(--bg-card);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .table-header {
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .search-box { position: relative; }
+    .search-box input {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px 8px 35px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      outline: none;
+      width: 220px;
+    }
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: rgba(15, 23, 42, 0.5); padding: 14px 20px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+    td { padding: 14px 20px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+    tr:hover td { background-color: var(--bg-card-hover); }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .progress-bar-bg {
+      background: var(--bg-primary);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 120px;
+      margin-top: 4px;
+    }
+    .progress-bar-fill { height: 100%; background: var(--accent-purple); border-radius: 4px; }
+    .detail-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-title">
+        <h1><i class="fa-solid fa-trophy"></i> Controle de Metas de Contribuição</h1>
+        <!--<p id="guildInfo">Arraste o arquivo JSON ou Excel da guilda para calcular os pontos de balance</p>-->
+      </div>
+    </header>
+
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <p>Arraste e solte o arquivo <span>JSON</span></p>
+      <p style="font-size: 0.8rem; margin-top: 5px;">ou clique para buscar do computador</p>
+      <input type="file" id="fileInput" accept=".json, .xlsx, .xls">
+    </div>
+
+    <div class="config-bar">
+      <div class="input-group">
+        <label><i class="fa-solid fa-coins"></i> Meta Semanal (Pontos):</label>
+        <input type="number" id="metaContrib" value="10000" min="0" step="500" onchange="atualizarRelatorio()">
+      </div>
+      <div class="input-group">
+        <label><i class="fa-solid fa-filter"></i> Filtrar Status:</label>
+        <select id="filtroStatus" onchange="filtrarTabela()">
+          <option value="TODOS">Todos os Membros</option>
+          <option value="OK">✅ Bateu a Meta (≥ 10k)</option>
+          <option value="FAIL">❌ Não Bateu a Meta (< 10k)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="metrics-grid" id="metricsGrid" style="display: none;">
+      <div class="metric-card">
+        <div class="metric-info">
+          <h3>Total de Membros</h3>
+          <p id="totalMembros">0</p>
+        </div>
+        <i class="fa-solid fa-users" style="font-size: 1.5rem; color: var(--accent-purple);"></i>
+      </div>
+      <div class="metric-card">
+        <div class="metric-info">
+          <h3>Bateram a Meta</h3>
+          <p id="totalAprovados" style="color: var(--success);">0</p>
+        </div>
+        <i class="fa-solid fa-circle-check" style="font-size: 1.5rem; color: var(--success);"></i>
+      </div>
+      <div class="metric-card">
+        <div class="metric-info">
+          <h3>Abaixo da Meta</h3>
+          <p id="totalReprovados" style="color: var(--danger);">0</p>
+        </div>
+        <i class="fa-solid fa-circle-xmark" style="font-size: 1.5rem; color: var(--danger);"></i>
+      </div>
+    </div>
+
+    <div id="podiumArea" style="display: none;">
+      <h3 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-muted);"><i class="fa-solid fa-crown"></i> Top Maior Contribuição de Balance</h3>
+      <div class="podium-container" id="podiumContent"></div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-header">
+        <h3 style="font-size: 1rem; font-weight: 600;"><i class="fa-solid fa-list"></i> Lista de Membros</h3>
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="buscaNome" placeholder="Buscar por nick..." onkeyup="filtrarTabela()">
+        </div>
+      </div>
+
+      <div id="conteudoTabela">
+        <div style="padding: 50px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-file-arrow-up" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+          <p>Nenhum arquivo importado ainda.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let dadosMembrosGlobais = [];
+
+    document.getElementById('fileInput').addEventListener('change', e => {
+      if (e.target.files.length) processarArquivo(e.target.files[0]);
+    });
+
+    async function processarArquivo(file) {
+      try {
+        let membros = [];
+        let guildName = "";
+
+        if (file.name.endsWith('.json')) {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          membros = Array.isArray(parsed) ? parsed : (parsed.members || []);
+          guildName = parsed.guild || "";
+        } else {
+          const data = await file.arrayBuffer();
+          const workbook = XLSX.read(data);
+          membros = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        }
+
+        dadosMembrosGlobais = membros.map(m => {
+          const level = Number(m.level || m.Level || m.Nível || 0);
+          const dailies = Number(m.dailiesCompleted || m.Dailies || m.Diárias || 0);
+          
+          let rawContrib = m.contribution || m.Contribuicao || m.Contribuição || 0;
+          if (typeof rawContrib === 'string') {
+            rawContrib = Number(rawContrib.replace(/[^0-9]/g, ''));
+          } else {
+            rawContrib = Number(rawContrib);
+          }
+
+          let valorPorDaily = 0;
+          let tipoDaily = "Sem Daily";
+
+          if (level >= 350) {
+            valorPorDaily = 600;
+            tipoDaily = "Primal (600 pts/daily)";
+          } else if (level >= 150) {
+            valorPorDaily = 300;
+            tipoDaily = "Wildscape (300 pts/daily)";
+          }
+
+          const pontosDailies = dailies * valorPorDaily;
+          const pontosTotais = pontosDailies + rawContrib;
+
+          return {
+            ...m,
+            level,
+            dailies,
+            contribCash: rawContrib,
+            pontosDailies,
+            pontosTotais,
+            valorPorDaily,
+            tipoDaily
+          };
+        });
+
+        const guildInfoElem = document.getElementById('guildInfo');
+        if (guildInfoElem) {
+          guildInfoElem.innerText = guildName 
+            ? `Guilda: ${guildName} | Arquivo: ${file.name}` 
+            : `Arquivo carregado: ${file.name}`;
+        }
+        
+        document.getElementById('metricsGrid').style.display = 'grid';
+        document.getElementById('podiumArea').style.display = 'block';
+        atualizarRelatorio();
+      } catch (err) {
+        alert("Erro ao ler arquivo: " + err.message);
+      }
+    }
+
+    function atualizarRelatorio() {
+      if (!dadosMembrosGlobais.length) return;
+      gerarPodio();
+      filtrarTabela();
+    }
+
+    function gerarPodio() {
+      const ordenados = [...dadosMembrosGlobais].sort((a, b) => b.pontosTotais - a.pontosTotais);
+      const top3 = ordenados.slice(0, 3);
+      let podioHtml = "";
+
+      top3.forEach((m, idx) => {
+        const cores = ['#f59e0b', '#94a3b8', '#b45309'];
+
+        podioHtml += `
+          <div class="podium-card ${idx === 0 ? 'first' : ''}">
+            <i class="fa-solid fa-trophy" style="font-size: 2rem; color: ${cores[idx]};"></i>
+            <div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${idx + 1}º Lugar</div>
+              <strong style="font-size: 1.1rem;">${m.name || m.Nome}</strong>
+              <div style="font-size: 0.85rem; color: var(--success);">${m.pontosTotais.toLocaleString()} pts de Balance</div>
+              <div class="detail-text">${m.dailies} Dailies (${m.pontosDailies.toLocaleString()} pts) + Cash: $${m.contribCash.toLocaleString()}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('podiumContent').innerHTML = podioHtml;
+    }
+
+    function filtrarTabela() {
+      const meta = Number(document.getElementById('metaContrib').value);
+      const filtroStatus = document.getElementById('filtroStatus').value;
+      const busca = document.getElementById('buscaNome').value.toLowerCase();
+
+      let aprovados = 0;
+      let reprovados = 0;
+      let htmlLinhas = "";
+
+      dadosMembrosGlobais.forEach(m => {
+        const nome = m.name || m.Nome || 'Desconhecido';
+        const rank = m.rank || m.Cargo || '-';
+        const bateuMeta = m.pontosTotais >= meta;
+
+        if (bateuMeta) aprovados++; else reprovados++;
+
+        const passaFiltro = (filtroStatus === 'TODOS') ||
+                            (filtroStatus === 'OK' && bateuMeta) ||
+                            (filtroStatus === 'FAIL' && !bateuMeta);
+
+        const passaBusca = nome.toLowerCase().includes(busca);
+
+        if (passaFiltro && passaBusca) {
+          const porcentagem = Math.min(100, Math.round((m.pontosTotais / meta) * 100));
+          
+          htmlLinhas += `
+            <tr>
+              <td>
+                <b>${nome}</b>
+                <div class="detail-text">Lvl ${m.level} • ${m.tipoDaily}</div>
+              </td>
+              <td><span style="font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">${rank}</span></td>
+              <td>
+                <b>${m.pontosTotais.toLocaleString()}</b> / ${meta.toLocaleString()} pts
+                <div class="detail-text">${m.dailies} Dailies (+${m.pontosDailies.toLocaleString()} pts) | Cash: $${m.contribCash.toLocaleString()}</div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: ${porcentagem}%; background: ${bateuMeta ? 'var(--success)' : 'var(--accent-purple)'};"></div>
+                </div>
+              </td>
+              <td><b>${porcentagem}%</b></td>
+              <td>
+                ${bateuMeta 
+                  ? '<span class="badge badge-success"><i class="fa-solid fa-check"></i> Meta Batida</span>' 
+                  : '<span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Não Bateu</span>'}
+              </td>
+            </tr>
+          `;
+        }
+      });
+
+      document.getElementById('totalMembros').innerText = dadosMembrosGlobais.length;
+      document.getElementById('totalAprovados').innerText = aprovados;
+      document.getElementById('totalReprovados').innerText = reprovados;
+
+      document.getElementById('conteudoTabela').innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Jogador / Nível</th>
+              <th>Cargo</th>
+              <th>Pontuação Total (Balance)</th>
+              <th>Progresso</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${htmlLinhas}
+          </tbody>
+        </table>
+      `;
+    }
+  </script>
+</body>
+</html>
