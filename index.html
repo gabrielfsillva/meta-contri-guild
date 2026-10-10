@@ -40,7 +40,6 @@
 
     .container { max-width: 1280px; margin: 0 auto; }
 
-    /* Header */
     header {
       margin-bottom: 30px;
       text-align: center;
@@ -60,7 +59,6 @@
 
     .header-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 6px; }
 
-    /* Dropzone Estilizada */
     .dropzone {
       background: var(--bg-card);
       backdrop-filter: blur(12px);
@@ -86,7 +84,6 @@
     .dropzone span { color: var(--accent-purple); font-weight: 600; }
     #fileInput { display: none; }
 
-    /* Grid de Métricas */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -125,7 +122,6 @@
       font-size: 1.4rem;
     }
 
-    /* Pódio */
     .podium-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -143,8 +139,6 @@
       align-items: center;
       gap: 18px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      position: relative;
-      overflow: hidden;
     }
 
     .podium-card.first { border-color: rgba(251, 191, 36, 0.4); background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(251, 191, 36, 0.05)); }
@@ -166,7 +160,23 @@
     .second .podium-icon { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; }
     .third .podium-icon { background: rgba(180, 83, 9, 0.15); color: #d97706; }
 
-    /* Container da Tabela */
+    .rank-tag {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .rank-1 { background: rgba(251, 191, 36, 0.2); color: var(--accent-gold); border: 1px solid rgba(251, 191, 36, 0.4); }
+    .rank-2 { background: rgba(148, 163, 184, 0.2); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.4); }
+    .rank-3 { background: rgba(217, 119, 6, 0.2); color: #fb923c; border: 1px solid rgba(217, 119, 6, 0.4); }
+
     .table-container {
       background: var(--bg-card);
       backdrop-filter: blur(12px);
@@ -176,7 +186,6 @@
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
     }
 
-    /* Cabeçalho unificado e moderno integrado na tabela */
     .table-header {
       padding: 20px 24px;
       display: flex;
@@ -199,7 +208,7 @@
     .controls-wrapper {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
@@ -229,6 +238,24 @@
     .control-group input[type="number"] { width: 70px; }
     .control-group select option { background: var(--bg-primary); color: var(--text-main); }
 
+    .btn-share {
+      background: linear-gradient(135deg, #5865F2, #4752C4);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+    }
+
+    .btn-share:hover { opacity: 0.9; transform: translateY(-1px); }
+
     .search-box {
       position: relative;
       background: rgba(15, 23, 42, 0.6);
@@ -246,7 +273,7 @@
       color: var(--text-main);
       font-size: 0.85rem;
       outline: none;
-      width: 180px;
+      width: 160px;
     }
 
     .search-box i {
@@ -300,7 +327,6 @@
       </div>
     </header>
 
-    <!-- Dropzone -->
     <div class="dropzone" id="dropzone">
       <i class="fa-solid fa-cloud-arrow-up"></i>
       <p>Arraste e solte seu arquivo <span>JSON</span> ou <span>Excel</span> aqui</p>
@@ -308,7 +334,6 @@
       <input type="file" id="fileInput" accept=".json, .xlsx, .xls">
     </div>
 
-    <!-- Metrics Cards -->
     <div class="metrics-grid" id="metricsGrid" style="display: none;">
       <div class="metric-card">
         <div class="metric-info">
@@ -339,7 +364,6 @@
       </div>
     </div>
 
-    <!-- Pódio -->
     <div id="podiumArea" style="display: none; margin-bottom: 30px;">
       <h3 style="margin-bottom: 14px; font-size: 0.95rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
         <i class="fa-solid fa-crown" style="color: var(--accent-gold);"></i> Top Destaques da Guilda
@@ -347,7 +371,6 @@
       <div class="podium-container" id="podiumContent"></div>
     </div>
 
-    <!-- Tabela Unificada com Todos os Controles Integrados -->
     <div class="table-container">
       <div class="table-header">
         <div class="table-title">
@@ -355,13 +378,11 @@
         </div>
         
         <div class="controls-wrapper">
-          <!-- Meta Semanal -->
           <div class="control-group">
             <label><i class="fa-solid fa-coins"></i> Meta:</label>
             <input type="number" id="metaContrib" value="10000" min="0" step="500" onchange="atualizarRelatorio()">
           </div>
 
-          <!-- Filtro de Status -->
           <div class="control-group">
             <label><i class="fa-solid fa-filter"></i> Status:</label>
             <select id="filtroStatus" onchange="filtrarTabela()">
@@ -371,7 +392,6 @@
             </select>
           </div>
 
-          <!-- Ordenação -->
           <div class="control-group">
             <label><i class="fa-solid fa-arrow-down-wide-short"></i> Ordenar:</label>
             <select id="ordenacao" onchange="filtrarTabela()">
@@ -384,11 +404,14 @@
             </select>
           </div>
 
-          <!-- Busca por Nick -->
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="buscaNome" placeholder="Buscar nick..." onkeyup="filtrarTabela()">
           </div>
+
+          <button class="btn-share" onclick="copiarListaPendentes()" title="Copiar relatório de pendentes para o Discord ou WhatsApp">
+            <i class="fa-solid fa-copy"></i> Copiar Relatório
+          </button>
         </div>
       </div>
 
@@ -536,6 +559,8 @@
       const criterioOrdenacao = document.getElementById('ordenacao').value;
       const busca = document.getElementById('buscaNome').value.toLowerCase();
 
+      const ordenadosAbsolutos = [...dadosMembrosGlobais].sort((a, b) => b.pontosTotais - a.pontosTotais);
+
       let dadosFiltrados = dadosMembrosGlobais.filter(m => {
         const nome = (m.name || m.Nome || 'Desconhecido').toLowerCase();
         const bateuMeta = m.pontosTotais >= meta;
@@ -575,10 +600,16 @@
         const bateuMeta = m.pontosTotais >= meta;
         const porcentagem = Math.min(100, Math.round((m.pontosTotais / meta) * 100));
         
+        const indexGlobal = ordenadosAbsolutos.findIndex(item => (item.name || item.Nome) === nome);
+        let tagHtml = '';
+        if (indexGlobal === 0) tagHtml = '<span class="rank-tag rank-1"><i class="fa-solid fa-crown"></i> Top 1</span>';
+        else if (indexGlobal === 1) tagHtml = '<span class="rank-tag rank-2"><i class="fa-solid fa-medal"></i> Top 2</span>';
+        else if (indexGlobal === 2) tagHtml = '<span class="rank-tag rank-3"><i class="fa-solid fa-award"></i> Top 3</span>';
+
         htmlLinhas += `
           <tr>
             <td>
-              <b style="font-size: 0.95rem;">${nome}</b>
+              <b style="font-size: 0.95rem;">${nome}</b> ${tagHtml}
               <div class="detail-text">Lvl ${m.level} • ${m.tipoDaily}</div>
             </td>
             <td><span style="font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; font-weight: 600; color: var(--text-muted);">${rank}</span></td>
@@ -619,6 +650,37 @@
           </tbody>
         </table>
       `;
+    }
+
+    function copiarListaPendentes() {
+      if (!dadosMembrosGlobais.length) {
+        alert("Carregue um arquivo primeiro para gerar o relatório.");
+        return;
+      }
+
+      const meta = Number(document.getElementById('metaContrib').value);
+      const pendentes = dadosMembrosGlobais.filter(m => m.pontosTotais < meta);
+
+      if (!pendentes.length) {
+        alert("Parabéns! Todos os membros já bateram a meta nesta semana.");
+        return;
+      }
+
+      let texto = `📢 *RELATÓRIO DE METAS DA GUILDA* (Meta: ${meta.toLocaleString()} pts)\n\n`;
+      texto += `❌ *Membros Pendentes (${pendentes.length}):*\n`;
+
+      pendentes.forEach(p => {
+        const pct = Math.min(100, Math.round((p.pontosTotais / meta) * 100));
+        texto += `• *${p.name || p.Nome}* (Lvl ${p.level}): ${p.pontosTotais.toLocaleString()} pts (${pct}%)\n`;
+      });
+
+      texto += `\n⚠️ _Por favor, garantam as diárias/contribuições antes do fechamento da semana!_`;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("Relatório copiado para a área de transferência! Basta colar no Discord ou WhatsApp.");
+      }).catch(err => {
+        alert("Erro ao copiar: " + err);
+      });
     }
   </script>
 </body>
