@@ -6,168 +6,249 @@
   <title>Painel de Metas - Guilda</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-primary: #0f172a;
-      --bg-card: #1e293b;
-      --bg-card-hover: #334155;
+      --bg-primary: #090d16;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --bg-card-hover: rgba(51, 65, 85, 0.8);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
+      --accent-gradient: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #3b82f6 100%);
       --accent-purple: #8b5cf6;
-      --accent-gold: #f59e0b;
+      --accent-gold: #fbbf24;
       --success: #10b981;
-      --success-bg: rgba(16, 185, 129, 0.15);
-      --danger: #ef4444;
-      --danger-bg: rgba(239, 68, 68, 0.15);
-      --border-color: #334155;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --danger: #f43f5e;
+      --danger-bg: rgba(244, 63, 94, 0.12);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(139, 92, 246, 0.3);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
 
     body {
       background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
       color: var(--text-main);
-      padding: 30px 20px;
+      padding: 40px 20px;
       min-height: 100vh;
     }
 
-    .container { max-width: 1200px; margin: 0 auto; }
+    .container { max-width: 1280px; margin: 0 auto; }
 
+    /* Header */
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-      gap: 15px;
+      margin-bottom: 30px;
+      text-align: center;
     }
 
     .header-title h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #a855f7, #3b82f6);
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      letter-spacing: -0.5px;
     }
 
-    .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+    .header-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 6px; }
 
+    /* Dropzone Estilizada */
     .dropzone {
-      border: 2px dashed var(--accent-purple);
-      background-color: rgba(139, 92, 246, 0.05);
-      border-radius: 12px;
-      padding: 25px;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 2px dashed var(--border-color);
+      border-radius: 16px;
+      padding: 35px 20px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 25px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     }
 
     .dropzone:hover, .dropzone.dragover {
-      background-color: rgba(139, 92, 246, 0.15);
-      border-color: #a855f7;
+      border-color: var(--accent-purple);
+      background: rgba(139, 92, 246, 0.06);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.15);
     }
 
-    .dropzone i { font-size: 2.2rem; color: var(--accent-purple); margin-bottom: 8px; }
+    .dropzone i { font-size: 2.8rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+    .dropzone p { font-size: 1rem; font-weight: 500; color: var(--text-main); }
+    .dropzone span { color: var(--accent-purple); font-weight: 600; }
     #fileInput { display: none; }
 
-    .config-bar {
-      background: var(--bg-card);
-      padding: 16px 24px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      gap: 25px;
-      margin-bottom: 25px;
-      border: 1px solid var(--border-color);
-    }
-
-    .input-group { display: flex; align-items: center; gap: 10px; }
-    .input-group label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-    .input-group input, .input-group select {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 8px 12px;
-      border-radius: 6px;
-      outline: none;
-      font-size: 0.9rem;
-    }
-
+    /* Grid de Métricas */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-      margin-bottom: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
     }
 
     .metric-card {
       background: var(--bg-card);
-      padding: 20px;
-      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      padding: 24px;
+      border-radius: 16px;
       border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s, border-color 0.2s;
     }
 
-    .metric-info h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
-    .metric-info p { font-size: 1.6rem; font-weight: 700; margin-top: 5px; }
+    .metric-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-glow);
+    }
 
+    .metric-info h3 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .metric-info p { font-size: 2rem; font-weight: 800; margin-top: 6px; letter-spacing: -0.5px; }
+    
+    .metric-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    /* Pódio */
     .podium-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 15px;
-      margin-bottom: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
     }
 
     .podium-card {
       background: var(--bg-card);
-      border-radius: 12px;
-      padding: 15px 20px;
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px 24px;
       border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
     }
 
-    .podium-card.first { border-color: var(--accent-gold); background: rgba(245, 158, 11, 0.05); }
+    .podium-card.first { border-color: rgba(251, 191, 36, 0.4); background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(251, 191, 36, 0.05)); }
+    .podium-card.second { border-color: rgba(148, 163, 184, 0.4); }
+    .podium-card.third { border-color: rgba(180, 83, 9, 0.4); }
 
+    .podium-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .first .podium-icon { background: rgba(251, 191, 36, 0.15); color: var(--accent-gold); box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); }
+    .second .podium-icon { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; }
+    .third .podium-icon { background: rgba(180, 83, 9, 0.15); color: #d97706; }
+
+    /* Container da Tabela */
     .table-container {
       background: var(--bg-card);
-      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
       overflow: hidden;
       border: 1px solid var(--border-color);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
     }
 
+    /* Cabeçalho unificado e moderno integrado na tabela */
     .table-header {
-      padding: 16px 24px;
+      padding: 20px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
       flex-wrap: wrap;
+      gap: 20px;
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .table-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
       gap: 10px;
     }
 
-    .search-box { position: relative; }
-    .search-box input {
-      background: var(--bg-primary);
+    .controls-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .control-group:hover { border-color: var(--accent-purple); }
+    .control-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+
+    .control-group input, .control-group select {
+      background: transparent;
+      border: none;
       color: var(--text-main);
-      padding: 8px 12px 8px 35px;
-      border-radius: 6px;
+      outline: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .control-group input[type="number"] { width: 70px; }
+    .control-group select option { background: var(--bg-primary); color: var(--text-main); }
+
+    .search-box {
+      position: relative;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 6px 12px 6px 36px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:hover, .search-box:focus-within { border-color: var(--accent-purple); }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
       font-size: 0.85rem;
       outline: none;
-      width: 220px;
+      width: 180px;
     }
+
     .search-box i {
       position: absolute;
       left: 12px;
@@ -178,33 +259,35 @@
     }
 
     table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: rgba(15, 23, 42, 0.5); padding: 14px 20px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-    td { padding: 14px 20px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
-    tr:hover td { background-color: var(--bg-card-hover); }
+    th { background: rgba(15, 23, 42, 0.6); padding: 16px 24px; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+    td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+    tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
 
     .badge {
-      padding: 6px 12px;
-      border-radius: 20px;
+      padding: 6px 14px;
+      border-radius: 30px;
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      letter-spacing: 0.3px;
     }
 
     .badge-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); }
 
     .progress-bar-bg {
-      background: var(--bg-primary);
+      background: rgba(15, 23, 42, 0.8);
       height: 8px;
       border-radius: 4px;
       overflow: hidden;
-      width: 120px;
-      margin-top: 4px;
+      width: 140px;
+      margin-top: 6px;
+      border: 1px solid var(--border-color);
     }
-    .progress-bar-fill { height: 100%; background: var(--accent-purple); border-radius: 4px; }
-    .detail-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+    .detail-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
   </style>
 </head>
 <body>
@@ -212,75 +295,107 @@
   <div class="container">
     <header>
       <div class="header-title">
-        <h1><i class="fa-solid fa-trophy"></i> Controle de Metas de Contribuição</h1>
-        <p id="guildInfo">Arraste o arquivo JSON ou Excel da guilda para calcular os pontos de balance</p>
+        <h1><i class="fa-solid fa-shield-halved"></i> Painel de Metas da Guilda</h1>
+        <!--<p id="guildInfo">Arraste o arquivo JSON ou Excel da guilda para iniciar a verificação</p> -->
       </div>
     </header>
 
+    <!-- Dropzone -->
     <div class="dropzone" id="dropzone">
       <i class="fa-solid fa-cloud-arrow-up"></i>
-      <p>Arraste e solte o arquivo <span>JSON</span> ou <span>Excel</span> aqui</p>
-      <p style="font-size: 0.8rem; margin-top: 5px;">ou clique para buscar do computador</p>
+      <p>Arraste e solte seu arquivo <span>JSON</span> ou <span>Excel</span> aqui</p>
+      <p style="font-size: 0.8rem; margin-top: 6px; color: var(--text-muted);">ou clique para navegar pelos arquivos do computador</p>
       <input type="file" id="fileInput" accept=".json, .xlsx, .xls">
     </div>
 
-    <div class="config-bar">
-      <div class="input-group">
-        <label><i class="fa-solid fa-coins"></i> Meta Semanal (Pontos):</label>
-        <input type="number" id="metaContrib" value="10000" min="0" step="500" onchange="atualizarRelatorio()">
-      </div>
-      <div class="input-group">
-        <label><i class="fa-solid fa-filter"></i> Filtrar Status:</label>
-        <select id="filtroStatus" onchange="filtrarTabela()">
-          <option value="TODOS">Todos os Membros</option>
-          <option value="OK">✅ Bateu a Meta (≥ 10k)</option>
-          <option value="FAIL">❌ Não Bateu a Meta (< 10k)</option>
-        </select>
-      </div>
-    </div>
-
+    <!-- Metrics Cards -->
     <div class="metrics-grid" id="metricsGrid" style="display: none;">
       <div class="metric-card">
         <div class="metric-info">
           <h3>Total de Membros</h3>
           <p id="totalMembros">0</p>
         </div>
-        <i class="fa-solid fa-users" style="font-size: 1.5rem; color: var(--accent-purple);"></i>
+        <div class="metric-icon" style="background: rgba(139, 92, 246, 0.12); color: var(--accent-purple);">
+          <i class="fa-solid fa-users"></i>
+        </div>
       </div>
       <div class="metric-card">
         <div class="metric-info">
-          <h3>Bateram a Meta</h3>
+          <h3>Meta Batida</h3>
           <p id="totalAprovados" style="color: var(--success);">0</p>
         </div>
-        <i class="fa-solid fa-circle-check" style="font-size: 1.5rem; color: var(--success);"></i>
+        <div class="metric-icon" style="background: var(--success-bg); color: var(--success);">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
       </div>
       <div class="metric-card">
         <div class="metric-info">
           <h3>Abaixo da Meta</h3>
           <p id="totalReprovados" style="color: var(--danger);">0</p>
         </div>
-        <i class="fa-solid fa-circle-xmark" style="font-size: 1.5rem; color: var(--danger);"></i>
+        <div class="metric-icon" style="background: var(--danger-bg); color: var(--danger);">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </div>
       </div>
     </div>
 
-    <div id="podiumArea" style="display: none;">
-      <h3 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-muted);"><i class="fa-solid fa-crown"></i> Top Maior Contribuição de Balance</h3>
+    <!-- Pódio -->
+    <div id="podiumArea" style="display: none; margin-bottom: 30px;">
+      <h3 style="margin-bottom: 14px; font-size: 0.95rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+        <i class="fa-solid fa-crown" style="color: var(--accent-gold);"></i> Top Destaques da Guilda
+      </h3>
       <div class="podium-container" id="podiumContent"></div>
     </div>
 
+    <!-- Tabela Unificada com Todos os Controles Integrados -->
     <div class="table-container">
       <div class="table-header">
-        <h3 style="font-size: 1rem; font-weight: 600;"><i class="fa-solid fa-list"></i> Lista de Membros</h3>
-        <div class="search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="buscaNome" placeholder="Buscar por nick..." onkeyup="filtrarTabela()">
+        <div class="table-title">
+          <i class="fa-solid fa-list-check" style="color: var(--accent-purple);"></i> Lista de Membros
+        </div>
+        
+        <div class="controls-wrapper">
+          <!-- Meta Semanal -->
+          <div class="control-group">
+            <label><i class="fa-solid fa-coins"></i> Meta:</label>
+            <input type="number" id="metaContrib" value="10000" min="0" step="500" onchange="atualizarRelatorio()">
+          </div>
+
+          <!-- Filtro de Status -->
+          <div class="control-group">
+            <label><i class="fa-solid fa-filter"></i> Status:</label>
+            <select id="filtroStatus" onchange="filtrarTabela()">
+              <option value="TODOS">Todos</option>
+              <option value="OK">✅ Batida</option>
+              <option value="FAIL">❌ Não Batida</option>
+            </select>
+          </div>
+
+          <!-- Ordenação -->
+          <div class="control-group">
+            <label><i class="fa-solid fa-arrow-down-wide-short"></i> Ordenar:</label>
+            <select id="ordenacao" onchange="filtrarTabela()">
+              <option value="pontos-desc">Pontos (Maior)</option>
+              <option value="pontos-asc">Pontos (Menor)</option>
+              <option value="nome-asc">Nome (A - Z)</option>
+              <option value="nome-desc">Nome (Z - A)</option>
+              <option value="nivel-desc">Nível (Maior)</option>
+              <option value="dailies-desc">Diárias (Maior)</option>
+            </select>
+          </div>
+
+          <!-- Busca por Nick -->
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="buscaNome" placeholder="Buscar nick..." onkeyup="filtrarTabela()">
+          </div>
         </div>
       </div>
 
       <div id="conteudoTabela">
-        <div style="padding: 50px; text-align: center; color: var(--text-muted);">
-          <i class="fa-solid fa-file-arrow-up" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
-          <p>Nenhum arquivo importado ainda.</p>
+        <div style="padding: 60px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-file-arrow-up" style="font-size: 3rem; margin-bottom: 14px; opacity: 0.5;"></i>
+          <p style="font-weight: 500;">Nenhum arquivo importado ainda.</p>
         </div>
       </div>
     </div>
@@ -291,16 +406,13 @@
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('fileInput');
 
-    // Clique na dropzone dispara o input de arquivo
     dropzone.addEventListener('click', () => fileInput.click());
 
-    // Impede o comportamento padrão da página de abrir o arquivo solto
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
       window.addEventListener(eventName, e => e.preventDefault(), false);
       dropzone.addEventListener(eventName, e => e.preventDefault(), false);
     });
 
-    // Efeitos visuais ao arrastar sobre a dropzone
     ['dragenter', 'dragover'].forEach(eventName => {
       dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
     });
@@ -309,14 +421,12 @@
       dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'), false);
     });
 
-    // Captura o arquivo solto diretamente
     dropzone.addEventListener('drop', e => {
       const dt = e.dataTransfer;
       const files = dt.files;
       if (files.length) processarArquivo(files[0]);
     });
 
-    // Captura o arquivo via seletor
     fileInput.addEventListener('change', e => {
       if (e.target.files.length) processarArquivo(e.target.files[0]);
     });
@@ -401,15 +511,16 @@
       let podioHtml = "";
 
       top3.forEach((m, idx) => {
-        const cores = ['#f59e0b', '#94a3b8', '#b45309'];
+        const classes = ['first', 'second', 'third'];
+        const icones = ['1º', '2º', '3º'];
 
         podioHtml += `
-          <div class="podium-card ${idx === 0 ? 'first' : ''}">
-            <i class="fa-solid fa-trophy" style="font-size: 2rem; color: ${cores[idx]};"></i>
-            <div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">${idx + 1}º Lugar</div>
-              <strong style="font-size: 1.1rem;">${m.name || m.Nome}</strong>
-              <div style="font-size: 0.85rem; color: var(--success);">${m.pontosTotais.toLocaleString()} pts de Balance</div>
+          <div class="podium-card ${classes[idx]}">
+            <div class="podium-icon">${icones[idx]}</div>
+            <div style="flex: 1;">
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">${idx === 0 ? 'Líder do Ranking' : `${idx + 1}º Lugar`}</div>
+              <strong style="font-size: 1.15rem; font-weight: 700;">${m.name || m.Nome}</strong>
+              <div style="font-size: 0.9rem; color: var(--success); font-weight: 700; margin-top: 2px;">${m.pontosTotais.toLocaleString()} pts de Balance</div>
               <div class="detail-text">${m.dailies} Dailies (${m.pontosDailies.toLocaleString()} pts) + Cash: $${m.contribCash.toLocaleString()}</div>
             </div>
           </div>
@@ -422,51 +533,70 @@
     function filtrarTabela() {
       const meta = Number(document.getElementById('metaContrib').value);
       const filtroStatus = document.getElementById('filtroStatus').value;
+      const criterioOrdenacao = document.getElementById('ordenacao').value;
       const busca = document.getElementById('buscaNome').value.toLowerCase();
+
+      let dadosFiltrados = dadosMembrosGlobais.filter(m => {
+        const nome = (m.name || m.Nome || 'Desconhecido').toLowerCase();
+        const bateuMeta = m.pontosTotais >= meta;
+
+        const passaFiltro = (filtroStatus === 'TODOS') ||
+                            (filtroStatus === 'OK' && bateuMeta) ||
+                            (filtroStatus === 'FAIL' && !bateuMeta);
+
+        const passaBusca = nome.includes(busca);
+        return passaFiltro && passaBusca;
+      });
+
+      dadosFiltrados.sort((a, b) => {
+        const nomeA = (a.name || a.Nome || '').toLowerCase();
+        const nomeB = (b.name || b.Nome || '').toLowerCase();
+
+        if (criterioOrdenacao === 'pontos-desc') return b.pontosTotais - a.pontosTotais;
+        if (criterioOrdenacao === 'pontos-asc') return a.pontosTotais - b.pontosTotais;
+        if (criterioOrdenacao === 'nome-asc') return nomeA.localeCompare(nomeB);
+        if (criterioOrdenacao === 'nome-desc') return nomeB.localeCompare(nomeA);
+        if (criterioOrdenacao === 'nivel-desc') return b.level - a.level;
+        if (criterioOrdenacao === 'dailies-desc') return b.dailies - a.dailies;
+        return 0;
+      });
 
       let aprovados = 0;
       let reprovados = 0;
       let htmlLinhas = "";
 
       dadosMembrosGlobais.forEach(m => {
+        if (m.pontosTotais >= meta) aprovados++; else reprovados++;
+      });
+
+      dadosFiltrados.forEach(m => {
         const nome = m.name || m.Nome || 'Desconhecido';
         const rank = m.rank || m.Cargo || '-';
         const bateuMeta = m.pontosTotais >= meta;
-
-        if (bateuMeta) aprovados++; else reprovados++;
-
-        const passaFiltro = (filtroStatus === 'TODOS') ||
-                            (filtroStatus === 'OK' && bateuMeta) ||
-                            (filtroStatus === 'FAIL' && !bateuMeta);
-
-        const passaBusca = nome.toLowerCase().includes(busca);
-
-        if (passaFiltro && passaBusca) {
-          const porcentagem = Math.min(100, Math.round((m.pontosTotais / meta) * 100));
-          
-          htmlLinhas += `
-            <tr>
-              <td>
-                <b>${nome}</b>
-                <div class="detail-text">Lvl ${m.level} • ${m.tipoDaily}</div>
-              </td>
-              <td><span style="font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">${rank}</span></td>
-              <td>
-                <b>${m.pontosTotais.toLocaleString()}</b> / ${meta.toLocaleString()} pts
-                <div class="detail-text">${m.dailies} Dailies (+${m.pontosDailies.toLocaleString()} pts) | Cash: $${m.contribCash.toLocaleString()}</div>
-                <div class="progress-bar-bg">
-                  <div class="progress-bar-fill" style="width: ${porcentagem}%; background: ${bateuMeta ? 'var(--success)' : 'var(--accent-purple)'};"></div>
-                </div>
-              </td>
-              <td><b>${porcentagem}%</b></td>
-              <td>
-                ${bateuMeta 
-                  ? '<span class="badge badge-success"><i class="fa-solid fa-check"></i> Meta Batida</span>' 
-                  : '<span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Não Bateu</span>'}
-              </td>
-            </tr>
-          `;
-        }
+        const porcentagem = Math.min(100, Math.round((m.pontosTotais / meta) * 100));
+        
+        htmlLinhas += `
+          <tr>
+            <td>
+              <b style="font-size: 0.95rem;">${nome}</b>
+              <div class="detail-text">Lvl ${m.level} • ${m.tipoDaily}</div>
+            </td>
+            <td><span style="font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; font-weight: 600; color: var(--text-muted);">${rank}</span></td>
+            <td>
+              <b style="font-size: 0.95rem;">${m.pontosTotais.toLocaleString()}</b> <span style="color: var(--text-muted); font-size: 0.8rem;">/ ${meta.toLocaleString()} pts</span>
+              <div class="detail-text">${m.dailies} Dailies (+${m.pontosDailies.toLocaleString()} pts) | Cash: $${m.contribCash.toLocaleString()}</div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: ${porcentagem}%; background: ${bateuMeta ? 'var(--success)' : 'var(--accent-purple)'};"></div>
+              </div>
+            </td>
+            <td><b style="font-weight: 700;">${porcentagem}%</b></td>
+            <td>
+              ${bateuMeta 
+                ? '<span class="badge badge-success"><i class="fa-solid fa-check"></i> Meta Batida</span>' 
+                : '<span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Não Bateu</span>'}
+            </td>
+          </tr>
+        `;
       });
 
       document.getElementById('totalMembros').innerText = dadosMembrosGlobais.length;
